@@ -75,7 +75,7 @@ dependencies {
     //compose destination
     val destinationVersion = "1.9.52"
     implementation("io.github.raamcosta.compose-destinations:core:$destinationVersion")
-//    ksp("io.github.raamcosta.compose-destinations:ksp:$destinationVersion")
+    ksp("io.github.raamcosta.compose-destinations:ksp:$destinationVersion")
 
     // Room
     val roomVersion = "2.5.2"

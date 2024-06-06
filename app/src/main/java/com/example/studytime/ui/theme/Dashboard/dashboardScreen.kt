@@ -37,7 +37,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studytime.R
+import com.example.studytime.sesso
+import com.example.studytime.subjects
+import com.example.studytime.tasks
 import com.example.studytime.ui.theme.Components.AddSubjectDialog
 import com.example.studytime.ui.theme.Components.CountCard
 import com.example.studytime.ui.theme.Components.DeleteSessionDialog
@@ -46,6 +50,9 @@ import com.example.studytime.ui.theme.Components.tasksList
 import com.example.studytime.ui.theme.Dashboard.destinations.SessionScreenRouteDestination
 import com.example.studytime.ui.theme.Dashboard.destinations.SubjectScreenRouteDestination
 import com.example.studytime.ui.theme.Dashboard.destinations.TaskScreenRouteDestination
+//import com.example.studytime.ui.theme.Dashboard.destinations.SessionScreenRouteDestination
+//import com.example.studytime.ui.theme.Dashboard.destinations.SubjectScreenRouteDestination
+//import com.example.studytime.ui.theme.Dashboard.destinations.TaskScreenRouteDestination
 import com.example.studytime.ui.theme.Domain.model.Session
 import com.example.studytime.ui.theme.Domain.model.Subject
 import com.example.studytime.ui.theme.Domain.model.Task
@@ -57,6 +64,8 @@ import studySessionList
 fun DashboardScreenRoute(
     navigator : DestinationsNavigator
 ) {
+//    val viewModel : DashboardViewModel = hiltViewModel()
+
     DashboardScreen(
         onSubjectCardClick ={subjectId ->
                             subjectId?.let {
@@ -83,12 +92,36 @@ private fun DashboardScreen(
     onTaskCardClicked : (Int?) -> Unit
 ) {
 
-    val subjects = listOf(
-        Subject(name = "Maths" , goalHours = 10f, colors = Subject.subjectCardColors[0] , subjectId = 1),
-        Subject(name = "English" , goalHours = 10f, colors = Subject.subjectCardColors[1],subjectId = 2),
-        Subject(name = "Physics" , goalHours = 10f, colors = Subject.subjectCardColors[2],subjectId = 3),
-        Subject(name = "Maths" , goalHours = 10f, colors = Subject.subjectCardColors[3],subjectId = 4),
-        Subject(name = "Maths" , goalHours = 10f, colors = Subject.subjectCardColors[4],subjectId = 5)
+
+    val sesso = listOf(
+        Session(
+            sessionSubjectId =0,
+            sessionId = 0,
+            relatedToSubject = "Hindi",
+            duration = 2,
+            date = 0L
+        ),
+        Session(
+            sessionSubjectId =0,
+            sessionId = 0,
+            relatedToSubject = "Maths",
+            duration = 2,
+            date = 0L
+        ),
+        Session(
+            sessionSubjectId =0,
+            sessionId = 0,
+            relatedToSubject = "Science",
+            duration = 2,
+            date = 0L
+        ),
+        Session(
+            sessionSubjectId =0,
+            sessionId = 0,
+            relatedToSubject = "English",
+            duration = 2,
+            date = 0L
+        ),
     )
 
     val tasks = listOf(
@@ -134,36 +167,7 @@ private fun DashboardScreen(
         ),
 
     )
-    val sesso = listOf(
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Hindi",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Maths",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Science",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "English",
-            duration = 2,
-            date = 0L
-        ),
-    )
+
 
     var addSubjectDialogOpen by rememberSaveable {
         mutableStateOf(false)
@@ -221,7 +225,7 @@ item {
             item {
                 SubjectsCardSection(modifier = Modifier.fillMaxWidth(), subjectList = subjects , onAddIconClicked = {addSubjectDialogOpen = true} , onSubjectCardClick = onSubjectCardClick)
             }
-            item {
+            item { 
                 Button(onClick = { onStudySessionClicked() },
                     modifier = Modifier
                         .padding(horizontal = 48.dp, vertical = 20.dp)
@@ -329,7 +333,7 @@ fun SubjectsCardSection(
            contentPadding = PaddingValues(start = 12.dp , end = 12.dp)
        ){
            items(subjectList){subject ->
-              SubjectCard(subjectName = subject.name, gradientColors =subject.colors, onClick = {onSubjectCardClick(subject.subjectId)})
+              SubjectCard(subjectName = subject.name, gradientColors =subject.colors.map { Color(it) }, onClick = {onSubjectCardClick(subject.subjectId)})
 
            }
        }

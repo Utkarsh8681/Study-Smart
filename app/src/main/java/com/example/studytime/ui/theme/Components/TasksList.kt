@@ -35,8 +35,8 @@ fun LazyListScope.tasksList(
     sectionTitle : String,
     emptyLis : String,
     tasks : List<Task>,
-//    onTaskCardClicked :(Int) -> Unit,
-//    onCheckBoxClicked :(Task) -> Unit,
+    onTaskCardClicked :(Int) -> Unit,
+    onCheckBoxClicked :(Task) -> Unit,
 
 ) {
     item {
@@ -74,7 +74,7 @@ fun LazyListScope.tasksList(
             modifier = Modifier.padding(horizontal = 12.dp , vertical = 4.dp),
             task = task,
             onCheckBoxClick = {  },
-            onClick = {  }
+            onClick = { onTaskCardClicked(task.taskId) }
 
         )
     }
@@ -120,28 +120,3 @@ fun LazyListScope.tasksList(
     }
 }
 
-@Preview
-@Composable
-private fun taskCar() {
-    TaskCard(task =  Task(
-        title = "Prepare Notes",
-        description = "",
-        dueDate = 0L,
-        priority = 1,
-        relatedSubject = "maths",
-        isComplete = true,
-        taskId = 1,
-        taskSubjectId = 0
-    ), onCheckBoxClick = { /*TODO*/ }) {
-        
-    }
-}
-
-//@Preview
-//@Composable
-//private fun taskLis() {
-//    LazyColumn {
-//
-//
-//    }
-//}

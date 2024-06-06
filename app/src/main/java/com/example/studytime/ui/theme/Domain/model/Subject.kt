@@ -11,8 +11,8 @@ import com.example.studytime.ui.theme.gradient5
 data class Subject(
     val name: String,
     val goalHours: Float,
-    val colors: List<androidx.compose.ui.graphics.Color>,
-    @PrimaryKey
+    val colors: List<Int>,
+    @PrimaryKey(autoGenerate = true)
     val subjectId : Int
 ){
     companion object{

@@ -9,6 +9,6 @@ data class Session(
     val relatedToSubject : String,
     val date : Long,
     val duration : Long,
-    @PrimaryKey
-    val sessionId : Int
+    @PrimaryKey(autoGenerate = true)
+    val sessionId : Int? = null
 )

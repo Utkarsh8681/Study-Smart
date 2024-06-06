@@ -4,6 +4,10 @@ import androidx.compose.ui.graphics.Color
 import com.example.studytime.ui.theme.Green
 import com.example.studytime.ui.theme.Orange
 import com.example.studytime.ui.theme.Red
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 enum class Priority(
     val title : String,
@@ -19,4 +23,13 @@ enum class Priority(
             it.value == value
         } ?: Medium
     }
+}
+fun Long?.changeMillisTODateString(): String {
+    val date : LocalDate = this?.let{
+        Instant
+            .ofEpochMilli(it)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+    } ?: LocalDate.now()
+    return date.format(DateTimeFormatter.ofPattern("dd MMM yy"))
 }
