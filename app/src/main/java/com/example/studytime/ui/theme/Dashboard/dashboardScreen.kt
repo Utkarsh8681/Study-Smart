@@ -23,8 +23,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,13 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.studytime.R
-import com.example.studytime.sesso
-import com.example.studytime.subjects
-import com.example.studytime.tasks
 import com.example.studytime.ui.theme.Components.AddSubjectDialog
 import com.example.studytime.ui.theme.Components.CountCard
 import com.example.studytime.ui.theme.Components.DeleteSessionDialog
@@ -56,17 +56,31 @@ import com.example.studytime.ui.theme.Dashboard.destinations.TaskScreenRouteDest
 import com.example.studytime.ui.theme.Domain.model.Session
 import com.example.studytime.ui.theme.Domain.model.Subject
 import com.example.studytime.ui.theme.Domain.model.Task
+import com.example.studytime.ui.theme.Util.SnackbarEvent
+import com.example.studytime.ui.theme.dash.DashboardEvent
+import com.example.studytime.ui.theme.dash.DashboardState
+import com.example.studytime.ui.theme.dash.DashboardViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import studySessionList
 @Destination(start = true)
 @Composable
 fun DashboardScreenRoute(
     navigator : DestinationsNavigator
 ) {
-//    val viewModel : DashboardViewModel = hiltViewModel()
+    val viewModel : DashboardViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val task by viewModel.tasks.collectAsStateWithLifecycle()
+    val recentSession by viewModel.recentSessions.collectAsStateWithLifecycle()
 
     DashboardScreen(
+        state = state,
+        task = task,
+        recentSession = recentSession,
+        onEvent = viewModel::event,
+        snackbarEvent = viewModel.snackbarEventFlow,
         onSubjectCardClick ={subjectId ->
                             subjectId?.let {
                                 val navArgs = SubjectScreenNavArgs(subjectId = subjectId)
@@ -87,87 +101,94 @@ navigator.navigate(SessionScreenRouteDestination())
 }
 @Composable
 private fun DashboardScreen(
+    state : DashboardState,
+    task : List<Task>,
+    recentSession : List<Session>,
+    onEvent :(DashboardEvent) -> Unit,
+    snackbarEvent : SharedFlow<SnackbarEvent>,
     onSubjectCardClick :(Int?)->Unit,
     onStudySessionClicked :()-> Unit,
     onTaskCardClicked : (Int?) -> Unit
 ) {
 
 
-    val sesso = listOf(
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Hindi",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Maths",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "Science",
-            duration = 2,
-            date = 0L
-        ),
-        Session(
-            sessionSubjectId =0,
-            sessionId = 0,
-            relatedToSubject = "English",
-            duration = 2,
-            date = 0L
-        ),
-    )
-
-    val tasks = listOf(
-        Task(
-            title = "Prepare Notes",
-            description = "",
-            dueDate = 0L,
-            priority = 1,
-            relatedSubject = "maths",
-            isComplete = false,
-            taskId = 1,
-            taskSubjectId = 0
-        ),
-        Task(
-            title = "Do Home Work",
-            description = "",
-            dueDate = 0L,
-            priority = 2,
-            relatedSubject = "maths",
-            isComplete = true,
-            taskId = 1,
-            taskSubjectId = 0
-        ),
-        Task(
-            title = "Go Coaching",
-            description = "",
-            dueDate = 0L,
-            priority = 3,
-            relatedSubject = "maths",
-            isComplete = false,
-            taskId = 1,
-            taskSubjectId = 0
-        ),
-        Task(
-            title = "Assignment",
-            description = "",
-            dueDate = 0L,
-            priority = 4,
-            relatedSubject = "maths",
-            isComplete = false,
-            taskId = 1,
-            taskSubjectId = 0
-        ),
-
-    )
-
+//    val sesso = listOf(
+//        Session(
+//            sessionSubjectId =0,
+//            sessionId = 0,
+//            relatedToSubject = "Hindi",
+//            duration = 2,
+//            date = 0L
+//        ),
+//        Session(
+//            sessionSubjectId =0,
+//            sessionId = 0,
+//            relatedToSubject = "Maths",
+//            duration = 2,
+//            date = 0L
+//        ),
+//        Session(
+//            sessionSubjectId =0,
+//            sessionId = 0,
+//            relatedToSubject = "Science",
+//            duration = 2,
+//            date = 0L
+//        ),
+//        Session(
+//            sessionSubjectId =0,
+//            sessionId = 0,
+//            relatedToSubject = "English",
+//            duration = 2,
+//            date = 0L
+//        ),
+//    )
+//
+//    val tasks = listOf(
+//        Task(
+//            title = "Prepare Notes",
+//            description = "",
+//            dueDate = 0L,
+//            priority = 1,
+//            relatedSubject = "maths",
+//            isComplete = false,
+//            taskId = 1,
+//            taskSubjectId = 0
+//        ),
+//        Task(
+//            title = "Do Home Work",
+//            description = "",
+//            dueDate = 0L,
+//            priority = 2,
+//            relatedSubject = "maths",
+//            isComplete = true,
+//            taskId = 1,
+//            taskSubjectId = 0
+//        ),
+//        Task(
+//            title = "Go Coaching",
+//            description = "",
+//            dueDate = 0L,
+//            priority = 3,
+//            relatedSubject = "maths",
+//            isComplete = false,
+//            taskId = 1,
+//            taskSubjectId = 0
+//        ),
+//        Task(
+//            title = "Assignment",
+//            description = "",
+//            dueDate = 0L,
+//            priority = 4,
+//            relatedSubject = "maths",
+//            isComplete = false,
+//            taskId = 1,
+//            taskSubjectId = 0
+//        ),
+//
+//    )
+val snackbarHostState  = remember {
+    SnackbarHostState()
+}
 
     var addSubjectDialogOpen by rememberSaveable {
         mutableStateOf(false)
@@ -175,26 +196,41 @@ private fun DashboardScreen(
     var deleteSubjectDialogOpen by rememberSaveable {
         mutableStateOf(false)
     }
-    var subjectName by remember {
-        mutableStateOf("")
+
+    LaunchedEffect(key1 = true) {
+        snackbarEvent.collectLatest {event ->
+            when(event){
+                is SnackbarEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+            }
+        }
     }
-    var goalHours by remember {
-        mutableStateOf("")
-    }
-    var selectedColors by remember {
-        mutableStateOf(Subject.subjectCardColors.random())
-    }
+//    var subjectName by remember {
+//        mutableStateOf("")
+//    }
+//    var goalHours by remember {
+//        mutableStateOf("")
+//    }
+//    var selectedColors by remember {
+//        mutableStateOf(Subject.subjectCardColors.random())
+//    }
 
     AddSubjectDialog(
         isOpen = addSubjectDialogOpen,
-        subjectName = subjectName,
-        goalHours = goalHours,
-        onSubjectNameChange = {subjectName = it},
-        onGoalHoursChange = {goalHours = it},
-        selectedColor = selectedColors,
-        onColorChange = {selectedColors = it},
+        subjectName = state.subjectName,
+        goalHours = state.goalStudyHours,
+        onSubjectNameChange = {onEvent(DashboardEvent.OnSubjectNameChange(it))},
+        onGoalHoursChange = {onEvent(DashboardEvent.OnGoalStudyHoursChange(it))},
+        selectedColor = state.subjectCardColors,
+        onColorChange = {onEvent(DashboardEvent.OnSubjectCardColorChange(it))},
         onDismissRequest = { addSubjectDialogOpen = false } ,
-        onConfirmButtonClick = {addSubjectDialogOpen =false}
+        onConfirmButtonClick = {
+            onEvent(DashboardEvent.SaveSubject)
+            addSubjectDialogOpen =false}
     )
 
     DeleteSessionDialog(isOpen = deleteSubjectDialogOpen   ,
@@ -202,11 +238,14 @@ private fun DashboardScreen(
         bodyText = "Are you Sure you want to delete this session? your studied hours will be reduced by " +
         "by this session time. this action cannot be undo.",
         onDismissRequest = { deleteSubjectDialogOpen = false },
-        onConfirmButtonClick = { deleteSubjectDialogOpen = false}
+        onConfirmButtonClick = {
+            onEvent(DashboardEvent.DeleteSession)
+            deleteSubjectDialogOpen = false}
         )
 
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
         topBar = {DashboardScreenTopAppBar()}
     ) {paddingValues ->
         LazyColumn(modifier = Modifier
@@ -217,13 +256,13 @@ item {
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp),
-        subjectCount =15,
-        studiedHours ="15",
-        goalHours ="15"
+        subjectCount =state.totalSubjectCount,
+        studiedHours =state.totalStudiedHours.toString(),
+        goalHours =state.totalGoalStudiedHours.toString()
     )
 }
             item {
-                SubjectsCardSection(modifier = Modifier.fillMaxWidth(), subjectList = subjects , onAddIconClicked = {addSubjectDialogOpen = true} , onSubjectCardClick = onSubjectCardClick)
+                SubjectsCardSection(modifier = Modifier.fillMaxWidth(), subjectList = state.subjects , onAddIconClicked = {addSubjectDialogOpen = true} , onSubjectCardClick = onSubjectCardClick)
             }
             item { 
                 Button(onClick = { onStudySessionClicked() },
@@ -239,16 +278,18 @@ item {
               sectionTitle = "Upcoming Tasks",
               emptyLis = "You don't have any upcomonh tasks \n " +
                       "Click the + button in Subject screen to add a task. ",
-              tasks = tasks ,
+              tasks = task ,
               onTaskCardClicked = onTaskCardClicked,
-              onCheckBoxClicked = {}
+              onCheckBoxClicked = {onEvent(DashboardEvent.OnTaskIsCompleteButtonClick(it))}
           )
             studySessionList(
                 emptyLis = "You don't have any upcomonh tasks \n " +
                         "Click the + button in Subject screen to add a task. ",
                 sectionTitle = "Recent Study Sessions" ,
-                sessions = sesso,
-                onDeleteIconClick = {deleteSubjectDialogOpen = true}
+                sessions = recentSession,
+                onDeleteIconClick = {
+                    onEvent(DashboardEvent.OnDeleteSessionButtonClick(it))
+                    deleteSubjectDialogOpen = true}
 
             )
         }
@@ -316,7 +357,7 @@ fun SubjectsCardSection(
                 modifier = modifier
                     .size(120.dp)
                     .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.books),
+                painter = painterResource(id = R.drawable.book),
                 contentDescription = emptyList
             )
             Text(

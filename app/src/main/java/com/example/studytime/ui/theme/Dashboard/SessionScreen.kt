@@ -1,17 +1,12 @@
 package com.example.studytime.ui.theme.Dashboard
-import android.graphics.Paint.Style
-import android.se.omapi.Session
-import android.view.View.AccessibilityDelegate
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,9 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,7 +39,6 @@ import com.example.studytime.sesso
 import com.example.studytime.subjects
 import com.example.studytime.ui.theme.Components.DeleteSessionDialog
 import com.example.studytime.ui.theme.Components.SubjectListBottomSheet
-import com.example.studytime.ui.theme.Domain.model.Subject
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -57,6 +49,8 @@ import studySessionList
 fun SessionScreenRoute(
     navigator : DestinationsNavigator
 ) {
+    val viewModel : SessionViewModel = hiltViewModel()
+
     SessionScreen(
         onBackButtonClick = {
             navigator.navigateUp()

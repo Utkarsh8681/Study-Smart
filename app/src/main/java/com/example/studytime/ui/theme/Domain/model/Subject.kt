@@ -13,7 +13,7 @@ data class Subject(
     val goalHours: Float,
     val colors: List<Int>,
     @PrimaryKey(autoGenerate = true)
-    val subjectId : Int
+    val subjectId : Int? = null
 ){
     companion object{
         val subjectCardColors  = listOf(gradient1 , gradient2 , gradient3, gradient4, gradient5)

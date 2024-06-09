@@ -36,8 +36,8 @@ fun SubjectCard(
         Column (modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.Center
             ){
-            Image(painter = painterResource(id = R.drawable.books), contentDescription =subjectName , Modifier.size(80.dp) )
-            Text(text = "Maths" , style = MaterialTheme.typography.headlineMedium, color = Color.White)
+            Image(painter = painterResource(id = R.drawable.book), contentDescription =subjectName , Modifier.size(80.dp) )
+            Text(text = subjectName , style = MaterialTheme.typography.headlineMedium, color = Color.White)
         }
     }
 }

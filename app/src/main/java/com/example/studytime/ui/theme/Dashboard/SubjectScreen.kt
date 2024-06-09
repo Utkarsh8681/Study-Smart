@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studytime.sesso
 import com.example.studytime.tasks
+import com.example.studytime.ui.theme.A_Subject.SubjectEvent
+import com.example.studytime.ui.theme.A_Subject.SubjectState
 import com.example.studytime.ui.theme.Components.AddSubjectDialog
 import com.example.studytime.ui.theme.Components.CountCard
 import com.example.studytime.ui.theme.Components.DeleteSessionDialog
@@ -62,9 +64,11 @@ data class SubjectScreenNavArgs(
 fun SubjectScreenRoute(
     navigator : DestinationsNavigator
 ) {
-//    val viewModel :SubjectScreenViewModel = hiltViewModel()
-
+    val viewModel :SubjectScreenViewModel = hiltViewModel()
+//    val state :
    SubjectScreen(
+       state = ,
+       onEvent = ,
        onTaskCardClicked = {
                taskId ->
            val navArgs = TaskScreenNavArgs(taskId = taskId , subjectId = null)
@@ -82,6 +86,8 @@ fun SubjectScreenRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SubjectScreen(
+    state : SubjectState,
+    onEvent : (SubjectEvent) -> Unit,
     onTaskCardClicked: (Int) -> Unit,
     onAddIconClicked:() ->Unit,
     onBackIconClick: () -> Unit
@@ -150,26 +156,28 @@ private fun SubjectScreen(
     var deleteSessionDialogOpen by remember {
         mutableStateOf(false)
     }
-    var subjectName by remember {
-        mutableStateOf("")
-    }
-    var goalHours by remember {
-        mutableStateOf("")
-    }
-    var selectedColors by remember {
-        mutableStateOf(Subject.subjectCardColors.random())
-    }
+//    var subjectName by remember {
+//        mutableStateOf("")
+//    }
+//    var goalHours by remember {
+//        mutableStateOf("")
+//    }
+//    var selectedColors by remember {
+//        mutableStateOf(Subject.subjectCardColors.random())
+//    }
 
     AddSubjectDialog(
         isOpen = addSubjectDialogOpen,
-        subjectName = subjectName,
-        goalHours = goalHours,
-        onSubjectNameChange = {subjectName = it},
-        onGoalHoursChange = {goalHours = it},
-        selectedColor = selectedColors,
-        onColorChange = {selectedColors = it},
+        subjectName = state.subjectName,
+        goalHours = state.goalStudyHours,
+        onSubjectNameChange = {onEvent(SubjectEvent.onSubjectNameChange(it))},
+        onGoalHoursChange = {onEvent(SubjectEvent.onGoalStudyHoursChange(it))},
+        selectedColor = state.subjectCardColors,
+        onColorChange = {onEvent(SubjectEvent.onSubjectCardColorChange(it))},
         onDismissRequest = { addSubjectDialogOpen = false } ,
-        onConfirmButtonClick = {addSubjectDialogOpen =false}
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.updateSubject)
+            addSubjectDialogOpen =false}
     )
 
     DeleteSessionDialog(isOpen = deleteSubjectDialogOpen   ,
@@ -177,14 +185,18 @@ private fun SubjectScreen(
         bodyText = "Are you Sure you want to delete this session? your studied hours will be reduced by " +
                 "by this session time. this action cannot be undo.",
         onDismissRequest = { deleteSubjectDialogOpen = false },
-        onConfirmButtonClick = { deleteSubjectDialogOpen = false}
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.deleteSubject)
+            deleteSubjectDialogOpen = false}
     )
     DeleteSessionDialog(isOpen = deleteSessionDialogOpen   ,
         title = "Delete Subject",
         bodyText = "Are you Sure you want to delete this session? your studied hours will be reduced by " +
                 "by this session time. this action cannot be undo.",
         onDismissRequest = { deleteSessionDialogOpen = false },
-        onConfirmButtonClick = { deleteSessionDialogOpen = false}
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.deleteSubject)
+            deleteSessionDialogOpen = false}
     )
 
 
@@ -192,7 +204,7 @@ private fun SubjectScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SubjectScreenTopBar(
-                title = "English",
+                title = state.subjectName,
                 onBackIconClick = onBackIconClick,
                 onDeleteIconClick = { deleteSubjectDialogOpen = true },
                 onEditIconClick ={addSubjectDialogOpen = true},
@@ -217,32 +229,34 @@ LazyColumn (
 item {
     SubjectOverviewSection(
         modifier = Modifier.fillMaxSize(),
-        goalHours = "15",
-        studyHours = "10",
-        progress = .70f)
+        goalHours = state.goalStudyHours,
+        studyHours = state.studiedHours.toString(),
+        progress = state.progress)
 }
     tasksList(
         sectionTitle = "Upcoming Tasks",
         emptyLis = "You don't have any upcomonh tasks \n " +
                 "Click the + button in Subject screen to add a task. ",
-        tasks = tasks,
+        tasks = state.upcomingTasks,
         onTaskCardClicked =onTaskCardClicked ,
-        onCheckBoxClicked = {}
+        onCheckBoxClicked = {onEvent(SubjectEvent.onTaskIsCompleteChange(it))}
     )
     tasksList(
         sectionTitle = "Completed Tasks",
         emptyLis = "You don't have any completed tasks \n " +
                 "Click the + button in Subject screen to add a task. ",
-        tasks = completedTasks,
+        tasks = state.completedTasks,
         onTaskCardClicked = onTaskCardClicked,
-        onCheckBoxClicked = {}
+        onCheckBoxClicked = {onEvent(SubjectEvent.onTaskIsCompleteChange(it))}
     )
     studySessionList(
-        emptyLis = "You don't have any upcomonh tasks \n " +
-                "Click the + button in Subject screen to add a task. ",
+        emptyLis = "You don't have any upcoming tasks \n " +
+                "Click the + button in Subject screen to add a task.",
         sectionTitle = "Recent Study Sessions" ,
-        sessions = sesso,
-        onDeleteIconClick = {deleteSessionDialogOpen = true}
+        sessions = state.recentSessions,
+        onDeleteIconClick = {
+            onEvent(SubjectEvent.onDeleteSessionButtonClick(it))
+            deleteSessionDialogOpen = true}
     )
 }
     }
